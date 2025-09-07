@@ -1,16 +1,9 @@
-// components/TrendingSection.tsx
 "use client";
 
 import { FC, useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Movie {
-  id: number;
-  title: string;
-  image: string;
-  views: number;
-}
+import { Movie } from "../types/movies"; // pastikan path sesuai
 
 interface TrendingSectionProps {
   movies: Movie[];
@@ -21,8 +14,10 @@ const TrendingSection: FC<TrendingSectionProps> = ({ movies }) => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // ambil top 10 berdasarkan views tertinggi
-  const topMovies = [...movies].sort((a, b) => b.views - a.views).slice(0, 10);
+  // ambil top 10 berdasarkan popularity tertinggi
+  const topMovies = [...movies]
+    .sort((a, b) => b.vote_average - a.vote_average)
+    .slice(0, 10);
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -48,7 +43,12 @@ const TrendingSection: FC<TrendingSectionProps> = ({ movies }) => {
     const el = scrollRef.current;
     if (!el) return;
 
-    checkScroll(); // cek awal
+    // Cek scroll segera setelah mount
+    const handleCheckScroll = () => checkScroll();
+
+    // Gunakan setTimeout 0 untuk memastikan DOM sudah render
+    setTimeout(handleCheckScroll, 0);
+
     el.addEventListener("scroll", checkScroll);
     window.addEventListener("resize", checkScroll);
 
@@ -56,10 +56,10 @@ const TrendingSection: FC<TrendingSectionProps> = ({ movies }) => {
       el.removeEventListener("scroll", checkScroll);
       window.removeEventListener("resize", checkScroll);
     };
-  }, []);
+  }, [topMovies]); // <-- tambahkan topMovies agar cek ulang ketika data berubah
 
   return (
-    <section className="px-6 py-10 relative ofervlow-hidden">
+    <section className="px-6 py-10 relative overflow-hidden">
       <h2 className="text-2xl font-bold mb-6">🔥 Trending Sekarang</h2>
 
       {/* Tombol kiri */}
@@ -75,7 +75,7 @@ const TrendingSection: FC<TrendingSectionProps> = ({ movies }) => {
       {/* Carousel */}
       <div
         ref={scrollRef}
-        className="grid grid-flow-col auto-cols-[120px] sm:auto-cols-[200px] md:auto-cols-[240px] gap-6 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent pb-4 scroll-smooth overflow-hidden"
+        className="grid grid-flow-col auto-cols-[120px] sm:auto-cols-[200px] md:auto-cols-[240px] gap-6 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent pb-4 scroll-smooth overflow-x-auto"
       >
         {topMovies.map((movie) => (
           <div
@@ -84,18 +84,18 @@ const TrendingSection: FC<TrendingSectionProps> = ({ movies }) => {
           >
             <div className="relative w-full h-25 sm:h-42 md:h-48 lg:h-60">
               <Image
-                src={movie.image}
-                alt={movie.title}
+                src={movie.poster_path} // gunakan poster_path
+                alt={movie.original_title}
                 fill
                 className="object-cover text-sm"
               />
             </div>
             <div className="p-3">
               <h3 className="font-semibold text-ellipsis text-xs sm:text-sm md:text-base lg:text-lg">
-                {movie.title}
+                {movie.original_title}
               </h3>
               <p className="text-sm text-gray-400">
-                {movie.views.toLocaleString("id-ID")} views
+                ⭐ {movie.vote_average.toFixed(1)}
               </p>
             </div>
           </div>

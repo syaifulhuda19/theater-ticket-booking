@@ -2,23 +2,40 @@
 
 import "./globals.css";
 import type { Metadata } from "next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
 // Metadata is not exported here because this is a client component.
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <html lang="id">
       <body className="bg-gray-100 text-gray-900">
         {/* Header */}
-        <header className="bg-white shadow-md px-4 sm:px-6 py-3 flex justify-between items-center">
+        <header
+          className={`fixed top-0 left-0 w-full h-18 px-4 sm:px-6 py-3 flex justify-between items-center z-50 transition-colors duration-300 shadow-md ${
+            scrolled ? "bg-gray-800 shadow-md" : "bg-transparent"
+          }`}
+        >
           <h1 className="text-xl sm:text-2xl font-bold text-indigo-600">
             🎬 TiketBioskop
           </h1>
@@ -29,7 +46,7 @@ export default function RootLayout({
               <li>
                 <a
                   href="/beranda"
-                  className="text-gray-900 hover:text-indigo-600"
+                  className="text-gray-200 font-medium hover:text-indigo-600"
                 >
                   Beranda
                 </a>
@@ -37,7 +54,7 @@ export default function RootLayout({
               <li>
                 <a
                   href="/bioskop"
-                  className="text-gray-900 hover:text-indigo-600"
+                  className="text-gray-200 font-medium hover:text-indigo-600"
                 >
                   Bioskop
                 </a>
@@ -45,7 +62,7 @@ export default function RootLayout({
               <li>
                 <a
                   href="/booking"
-                  className="text-gray-900 hover:text-indigo-600"
+                  className="text-gray-200 font-medium hover:text-indigo-600"
                 >
                   Booking
                 </a>
@@ -53,7 +70,7 @@ export default function RootLayout({
               <li>
                 <a
                   href="/profil"
-                  className="text-gray-900 hover:text-indigo-600"
+                  className="text-gray-200 font-medium hover:text-indigo-600"
                 >
                   Profil
                 </a>
@@ -63,7 +80,7 @@ export default function RootLayout({
 
           {/* Mobile Hamburger */}
           <button
-            className="sm:hidden p-2 text-gray-900 hover:text-indigo-600"
+            className="sm:hidden p-2 text-white hover:text-indigo-600"
             onClick={() => setIsOpen(true)}
           >
             <Menu size={28} />
